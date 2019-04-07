@@ -1,0 +1,92 @@
+@import '~antd/lib/style/themes/default.less';
+
+.main {
+  width: 388px;
+  margin: 0 auto;
+  @media screen and (max-width: @screen-sm) {
+    width: 95%;
+  }
+
+  .icon {
+    margin-left: 16px;
+    color: rgba(0, 0, 0, 0.2);
+    font-size: 24px;
+    vertical-align: middle;
+    cursor: pointer;
+    transition: color 0.3s;
+
+    &:hover {
+      color: @primary-color;
+    }
+  }
+
+  .other {
+    margin-top: 24px;
+    line-height: 22px;
+    text-align: left;
+
+    .register {
+      float: right;
+    }
+  }
+}
+
+.centerbox {
+  max-width: 1000px;
+  background:rgba(255,255,255,1);
+  box-shadow:0px 0px 30px 0px rgba(4,0,0,0.5);
+  margin: 109px auto 0;
+  .left{
+    width:500px;
+    height:600px;
+    background:linear-gradient(0deg,rgba(255,133,41,1) 0%,rgba(255,176,41,1) 100%);
+    overflow: hidden;
+    position: relative;
+    .leftbg{
+      width:287px;
+      height:310px;
+      background:linear-gradient(149deg,rgba(255,175,41,1) 0%,rgba(255,176,41,-1.17) 100%);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      border-radius: 100% 0 0 0;
+    }
+    h3 {
+      margin: 358px 0 0 39px;
+      font-size:36px;
+      font-family:MicrosoftYaHei-Bold;
+      font-weight:bold;
+      color:rgba(255,255,255,1);
+    }
+    p {
+      font-size:30px;
+      font-family:MicrosoftYaHei;
+      font-weight:400;
+      color:rgba(255,255,255,1);
+      margin: 0 0 0 40px;
+    }
+  }
+  .right{
+    overflow: hidden;
+    h3 {
+      font-size: 24px;
+      color: #333;
+      text-align: center;
+      margin-top: 73px;
+    }
+    .loginbox{
+      width: 350px;
+      margin: 50px auto 0;
+      .loginbtn{
+        text-align: center;
+        font-size: 16px;
+        line-height: 40px;
+        color: #fff;
+        width:350px;
+        height:40px;
+        background:linear-gradient(90deg,rgba(255,132,41,1) 0%,rgba(255,177,41,1) 100%);
+        border-radius:4px;
+      }
+    }
+  }
+}
