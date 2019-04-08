@@ -34,6 +34,7 @@ export default [
           {
             path: '/merchant/:id/record',
             name: '充值记录',
+            hideInMenu: true,
             component: './Merchant/MerchantList/record',
           },
         ],

@@ -15,14 +15,26 @@
     transform: translateY(-50%);
   }
 }
-.form{
-  display: block;
-  margin-bottom: 16px;
-  .search{
-    width: 320px;
+.linkbutton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1890FF;
+  // text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  &:hover, &:focus{
+    text-decoration: none;
   }
 }
 
+.form{
+  .search{
+    width: 350px;
+    margin-bottom: 16px;
+  }
+}
 
 @media screen and (max-width: @screen-lg) {
   

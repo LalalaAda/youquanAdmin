@@ -144,10 +144,10 @@ export function getQueryPath(path = '', query = {}) {
 }
 
 /* eslint no-useless-escape:0 */
-const reg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
+const urlreg = /(((^https?:(?:\/\/)?)(?:[-;:&=\+\$,\w]+@)?[A-Za-z0-9.-]+(?::\d+)?|(?:www.|[-;:&=\+\$,\w]+@)[A-Za-z0-9.-]+)((?:\/[\+~%\/.\w-_]*)?\??(?:[-\+=&;%@.\w_]*)#?(?:[\w]*))?)$/;
 
 export function isUrl(path) {
-  return reg.test(path);
+  return urlreg.test(path);
 }
 
 export function formatWan(val) {
@@ -175,4 +175,56 @@ export function formatWan(val) {
     );
   }
   return result;
+}
+
+/**
+ * 测试字符串长度
+ * zhLength：中文长度  英文长度为中文长度的2倍
+ * value: 测试的值
+ * msgPrex： 值判断前缀名称
+ */
+export function checkStrLength(opts) {
+  
+  const {zhLength} = opts;
+  const {msgPrex=''} = opts;
+  const result = {
+    check: false,
+    msg: '',
+  };
+  const flag = 1;
+  const v = opts.value;
+  // [\u4e00-\u9fa5]为汉字的unicode编码，/i表示匹配的时候不区分大小写。
+  const rx = /[a-z\d]/i;
+  const rxcn = /[\u4e00-\u9fa5]/;
+  let num = 0;
+  let chr;
+
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0, j = v.length; i < j; i++) {
+    chr = v.charAt(i);
+    if (rx.test(chr)) num += 1;
+    else if (rxcn.test(chr)) num += 2;
+    else {
+      // 不属于汉字或者字母的  即特殊符号 这里就算加1
+      num += 1;
+      /* flag=3;  
+             break;  */
+    }
+  }
+  if (flag !== 3) {
+    if (num > zhLength * 2) {
+      result.msg = `${msgPrex  }长度最多为${  zhLength  }个汉字或${  zhLength * 2  }个字母数字！`;
+      return result;
+    } if (num < 1) {
+      result.msg = `${msgPrex  }不能为空！`;
+      return result;
+    }
+    result.check = true;
+    return result;
+  }
+
+  // 未使用
+  result.msg = `${msgPrex  }不能包含特殊符号！`;
+  return result;
+  
 }

@@ -35,5 +35,11 @@ export default {
   //  商户管理
   'GET /api/merchant/list': (req, res) => {
     return merchant.fetchList(req, res);
+  },
+  'POST /api/merchant/addmerchant': (req, res) => {
+    return merchant.addMerchant(req, res);
+  },
+  'POST /api/merchant/merchantrecharge': (req, res) => {
+    return merchant.merchantRecharge(req, res);
   }
 };
