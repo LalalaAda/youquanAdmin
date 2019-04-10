@@ -11,21 +11,19 @@ export default class GlobalHeaderRight extends PureComponent {
   render() {
     const {
       currentUser,
-     
       onMenuClick,
       onLogoutClick,
-      
       theme,
     } = this.props;
     const menu = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
-        
-        <Menu.Item key="userinfo">
+        {/* TODO add 用户个人中心 */}
+        {/* <Menu.Item key="userinfo">
           <Icon type="setting" />
           account settings
-        </Menu.Item>
+        </Menu.Item> */}
         
-        <Menu.Divider />
+        {/* <Menu.Divider /> */}
         <Menu.Item key="logout">
           <Icon type="logout" />
           logout
@@ -41,7 +39,7 @@ export default class GlobalHeaderRight extends PureComponent {
       <div className={className}>
         {currentUser.name ? (
           <HeaderDropdown overlay={menu}>
-            <span className={`${styles.action} ${styles.account}`}>
+            <span className={`${styles.action} ${styles.account}`} style={{marginRight: '24px'}}>
               <Avatar
                 size="small"
                 className={styles.avatar}
@@ -52,13 +50,13 @@ export default class GlobalHeaderRight extends PureComponent {
             </span>
           </HeaderDropdown>
         ) : (
-          <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
+          <div style={{marginRight: '24px'}}>
+            <Spin size="small" style={{ marginLeft: 8, marginRight: 8 }} />
+            <Button type="primary" icon="poweroff" onClick={onLogoutClick} style={{ marginRight: 24 }}>
+              注销
+            </Button>
+          </div>
         )}
-
-        <Button type="primary" icon="poweroff" onClick={onLogoutClick} style={{ marginRight: 24 }}>
-          注销
-        </Button>
-        
       </div>
     );
   }

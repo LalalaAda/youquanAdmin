@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import defaultSetting from '../defaultSettings';
 import { Layout } from 'antd';
-import Animate from 'rc-animate';
 import { connect } from 'dva';
-import router from 'umi/router';
+// import router from 'umi/router';
+import Animate from 'rc-animate';
+import defaultSetting from '../defaultSettings';
 import GlobalHeader from '@/components/GlobalHeader';
 import TopNavHeader from '@/components/TopNavHeader';
 import styles from './Header.less';
@@ -44,16 +44,17 @@ class HeaderView extends Component {
 
   handleMenuClick = ({ key }) => {
     const { dispatch } = this.props;
-    if (key === 'userCenter') {
-      router.push('/account/center');
-      return;
-    }
-    if (key === 'triggerError') {
-      router.push('/exception/trigger');
-      return;
-    }
+    // if (key === 'userCenter') {
+    //   router.push('/account/center');
+    //   return;
+    // }
+    // if (key === 'triggerError') {
+    //   router.push('/exception/trigger');
+    //   return;
+    // }
     if (key === 'userinfo') {
-      router.push('/account/settings/base');
+      // TODO add用户个人中心
+      // router.push('/account/settings/base');
       return;
     }
     if (key === 'logout') {
@@ -134,7 +135,7 @@ class HeaderView extends Component {
   }
 }
 
-export default connect(({ user, global, loading }) => ({
+export default connect(({ user, global }) => ({
   currentUser: user.currentUser,
   collapsed: global.collapsed,
 }))(HeaderView);

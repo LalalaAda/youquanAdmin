@@ -7,10 +7,10 @@ export async function accountLogin(params) {
   });
 }
 
-export async function query() {
-  return request('/api/users');
+export async function queryUsers() {
+  return request('/api/user/users');
 }
 
 export async function queryCurrent() {
-  return request('/api/currentUser');
+  return request('/api/user/currentuser');
 }

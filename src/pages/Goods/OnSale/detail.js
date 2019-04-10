@@ -3,7 +3,7 @@ import { connect } from 'dva';
 import moment from 'moment';
 import { message, Input, Table, Card, Form, Select, Modal, Button, DatePicker } from 'antd';
 
-import styles from './record.less';
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;

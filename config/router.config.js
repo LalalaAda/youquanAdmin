@@ -40,6 +40,20 @@ export default [
         ],
       },
       {
+        path: '/goods',
+        name: '商品管理',
+        icon: 'form',
+        routes: [
+          { path: '/goods/onsale/list', name: '在售虚拟商品列表', component: './Goods/OnSale/index' },
+          {
+            path: '/goods/onsale/detail/:id',
+            name: '详情',
+            hideInMenu: true,
+            component: './Goods/OnSale/detail',
+          },
+        ],
+      },
+      {
         path: '/exception',
         name: '错误',
         icon: 'warning',

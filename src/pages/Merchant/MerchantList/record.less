@@ -1,0 +1,55 @@
+@import '~antd/lib/style/themes/default.less';
+@import '~@/utils/utils.less';
+
+.title{
+  margin-bottom: 16px;
+  position: relative;
+  h2 {
+    line-height: 40px;
+    font-weight: bolder;
+  }
+  .buttonDiv{
+    position: absolute;
+    top: 50%;
+    right: 6px;
+    transform: translateY(-50%);
+  }
+}
+.linkbutton {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: #1890FF;
+  // text-decoration: underline;
+  display: inline;
+  margin: 0;
+  padding: 0;
+  &:hover, &:focus{
+    text-decoration: none;
+  }
+}
+
+.form{
+  font-size: 0;
+  margin-bottom: 16px;
+  .formitem{
+    display: inline-block;
+    margin-right: 16px;
+    span{
+      display: inline-block;
+      font-size: 14px;
+      margin-right: 6px;
+    }
+    input{
+      width: auto;
+    }
+  }
+}
+
+@media screen and (max-width: @screen-lg) {
+  
+}
+
+@media screen and (max-width: @screen-md) {
+  
+}

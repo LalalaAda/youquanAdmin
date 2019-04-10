@@ -9,6 +9,7 @@ export default {
     total: 0,
     pageSize: 20,
     currentPage: 1,
+
   },
 
   effects: {
@@ -21,12 +22,15 @@ export default {
         });
       }
     },
-    *updateRecordStatus({ payload, callback }, { call }){
-      const response = yield call(API.updateRecordStatus, payload);
+    *updateRechargeRecord({ payload, callback }, { call, put }){
+      const response = yield call(API.updateRechargeRecord, payload);
       if(callback){
         if(response&&response.status==="ok"){
           yield callback(true);
-          // TODO 更新当前的List
+          yield put({
+            type: 'filterList',
+            payload
+          });
         }else{
           yield callback(false);
         }
@@ -41,5 +45,17 @@ export default {
       stateOld.total = payload.total;
       return stateOld;
     },
+    filterList(state, { payload }) {
+      const oldState = { ...state };
+      const nlist = oldState.list.filter(item => {
+        const newitem = item;
+        if(newitem.id === payload.id){
+          newitem.status = payload.status;
+        }
+        return newitem;
+      });
+      oldState.list = nlist;
+      return oldState;
+    }
   },
 };

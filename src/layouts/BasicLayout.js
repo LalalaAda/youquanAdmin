@@ -48,11 +48,11 @@ class BasicLayout extends React.Component {
       dispatch,
       route: { routes, path, authority },
     } = this.props;
-    if(authority){
-        dispatch({
-          type: 'user/fetchCurrent',
-        });
-    }
+    // if(loginStatus){
+      dispatch({
+        type: 'user/fetchCurrent',
+      });
+    // }
     dispatch({
       type: 'menu/getMenuData',
       payload: { routes, path, authority },

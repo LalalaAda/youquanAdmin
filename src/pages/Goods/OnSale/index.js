@@ -1,13 +1,12 @@
 import React, { PureComponent, Fragment } from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
-import { message, Input, Table, Card, Form, Select, Modal, Button, DatePicker } from 'antd';
+import { message, Input, Table, Card, Form, Select, Modal, Button, Divider } from 'antd';
+import Link from 'umi/link';
 
-import styles from './record.less';
+import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 @Form.create()
 class SearchForm extends PureComponent {
@@ -25,32 +24,30 @@ class SearchForm extends PureComponent {
     return (
       <Form onSubmit={onSubmit} className={styles.form} layout="inline">
         <FormItem>
-          {getFieldDecorator('num', {
-            initialValue: search.num,
-          })(<Input placeholder="充值单号" />)}
+          {getFieldDecorator('txt', {
+            initialValue: search.txt,
+          })(<Input className={styles.searchinput} placeholder="上游商品编号/立咕商品编号/虚拟商品名称" maxLength={30} />)}
         </FormItem>
-        <FormItem label="交易类型">
+        <FormItem label="上游供应商">
+          {getFieldDecorator('supplier', {
+            initialValue: search.supplier || 0,
+          })(
+            <Select style={{ minWidth: '140px' }}>
+              <Option value={0}>全部</Option>
+              <Option value={1}>流量贝贝</Option>
+              <Option value={2}>拉卡拉</Option>
+            </Select>
+          )}
+        </FormItem>
+        <FormItem label="卡券类型">
           {getFieldDecorator('type', {
             initialValue: search.type || 0,
           })(
             <Select style={{ minWidth: '140px' }}>
               <Option value={0}>全部</Option>
-              <Option value={1}>预存款充值</Option>
-              <Option value={2}>订单支出</Option>
-              <Option value={3}>订单退款</Option>
+              <Option value={1}>直充</Option>
+              <Option value={2}>非直充</Option>
             </Select>
-          )}
-        </FormItem>
-        <FormItem label="交易时间">
-          {getFieldDecorator('time', {
-            initialValue: search.time || undefined,
-          })(
-            <RangePicker
-              showTime={{ format: 'HH:mm' }}
-              format="YYYY-MM-DD HH:mm"
-              placeholder={['开始时间', '结束时间']}
-              label="交易时间"
-            />
           )}
         </FormItem>
         <FormItem>
@@ -64,79 +61,86 @@ class SearchForm extends PureComponent {
 }
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rcrecord, loading }) => ({
-  rcrecord,
-  loading: loading.models.rcrecord,
+@connect(({ onsale, loading }) => ({
+  onsale,
+  loading: loading.models.onsale,
 }))
 @Form.create()
-class RechargeRecord extends PureComponent {
+class OnSaleList extends PureComponent {
   state = {
     modalVisible: false,
     currentItem: undefined,
     search: {
-      num: undefined,
+      txt: undefined,
       type: 0,
-      time: undefined,
+      suppiler: 0,
     },
   };
 
   columns = [
     {
-      title: '充值单号',
-      dataIndex: 'num',
+      title: '上游供应商',
+      dataIndex: 'suppiler',
     },
     {
-      title: '充值金额(元)',
-      dataIndex: 'money',
-      render: val => (val && val.toFixed(2)) || 0.00,
+      title: '上游商品编号',
+      dataIndex: 'synum',
     },
     {
-      title: '收款状态',
-      dataIndex: 'status',
-      render: val => (
-        <span style={val ? { color: '#1890ff' } : { color: '#f5222d' }}>
-          {val ? '已收到转账款项' : '未收到转账款项'}
-        </span>
-      ),
+      title: '立咕商品编号',
+      dataIndex: 'lgnum',
     },
     {
-      title: '充值时间',
-      dataIndex: 'ctime',
-      // sorter: true,
-      render: val => <span>{moment.unix(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      title: '商品名称',
+      dataIndex: 'name',
     },
     {
-      title: '收款时间',
-      dataIndex: 'gtime',
-      render: val => <span>{moment.unix(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
+      title: '商品图片',
+      dataIndex: 'src',
+      render: (_, val) => <img className={styles.tableimg} src={val.src} alt={val.name} />,
+    },
+    {
+      title: '卡券类型',
+      dataIndex: 'type',
+      render: val => <span>{val === 1 ? '直充' : '非直充'}</span>,
+    },
+    {
+      title: '含税成本价(元)',
+      dataIndex: 'cprice',
+      render: val => <span>{val ? val.toFixed(2) : 0.0}</span>,
+    },
+    {
+      title: '含税下游供货价(元)',
+      dataIndex: 'sprice',
+      render: val => <span>{val ? val.toFixed(2) : 0.0}</span>,
+    },
+    {
+      title: '下游销售库存',
+      dataIndex: 'inventory',
     },
     {
       title: '操作',
       render: val => {
-        const updateStatusClick = () => {
+        const changePriceClick = () => {
           this.showModal(val);
         };
-
-        const urlComp = !val.status ? (
-          <span className={styles.linkbutton} onClick={updateStatusClick}>
-            修改收款状态
-          </span>
-        ) : (
-          '----------'
+        return (
+          <Fragment>
+            <Link to={`/goods/onsale/detail/${val.id}`}>详情</Link>
+            <Divider type="vertical" />
+            <span onClick={changePriceClick} className={styles.linkbutton}>
+              编辑供货价
+            </span>
+          </Fragment>
         );
-        return <Fragment>{urlComp}</Fragment>;
       },
     },
   ];
 
   componentDidMount() {
-    const {
-      match: { params },
-      dispatch,
-    } = this.props;
+    const { dispatch } = this.props;
     dispatch({
-      type: 'rcrecord/fetchList',
-      payload: { id: params.id },
+      type: 'onsale/fetchList',
     });
   }
 
@@ -146,10 +150,10 @@ class RechargeRecord extends PureComponent {
     const that = this;
     form.validateFields((err, values) => {
       if (!err) {
-        const { id, status } = values;
+        const { id, sprice } = values;
         dispatch({
-          type: 'rcrecord/updateRechargeRecord',
-          payload: { id, status },
+          type: 'onsale/changePrice',
+          payload: { id, sprice },
           callback(flag) {
             if (flag) {
               message.success('更改成功');
@@ -179,41 +183,43 @@ class RechargeRecord extends PureComponent {
   };
 
   render() {
-    const { rcrecord, loading, dispatch, form } = this.props;
+    const { onsale, loading, dispatch, form } = this.props;
     const { search } = this.state;
 
     const changePage = (page, pageSize) => {
-      const { num, type, time } = search;
+      const { txt, type, suppiler } = search;
       dispatch({
-        type: 'rcrecord/fetchList',
+        type: 'onsale/fetchList',
         payload: {
           page,
           pageSize,
-          num,
+          txt,
           type,
-          time,
+          suppiler,
         },
       });
     };
     const changePageSize = (current, size) => {
-      const { num, type, time } = search;
+      const { txt, type, suppiler } = search;
       dispatch({
-        type: 'rcrecord/fetchList',
+        type: 'onsale/fetchList',
         payload: {
           page: current,
           pageSize: size,
-          num,
+          txt,
           type,
-          time,
+          suppiler,
         },
       });
     };
     const paginationProps = {
       showSizeChanger: true,
       showQuickJumper: true,
-      pageSize: rcrecord.pageSize || 20,
-      total: rcrecord.total,
-      current: rcrecord.currentPage || 0,
+      pageSize: onsale.pageSize || 50,
+      pageSizeOptions: ['20', '40', '50', '60'],
+      total: onsale.total || 0,
+      showTotal: total => `共${total}项  `,
+      current: onsale.currentPage || 1,
       onChange: changePage,
       onShowSizeChange: changePageSize,
     };
@@ -224,10 +230,10 @@ class RechargeRecord extends PureComponent {
         ...state,
         search: { ...values },
       });
-      const { num, type, time } = values;
+      const { txt, type, suppiler } = values;
       dispatch({
-        type: 'rcrecord/fetchList',
-        payload: { num, type, time },
+        type: 'onsale/fetchList',
+        payload: { txt, type, suppiler },
       });
     };
 
@@ -243,19 +249,19 @@ class RechargeRecord extends PureComponent {
       <div>
         <Card bordered={false}>
           <div className={styles.title}>
-            <h2>商户预存款明细</h2>
+            <h2>在售虚拟商品列表</h2>
           </div>
           <SearchForm search={search} onSearch={onSearch} />
           <Table
             rowKey={item => item.id}
-            dataSource={rcrecord.list}
+            dataSource={onsale.list}
             columns={this.columns}
             loading={loading}
             pagination={paginationProps}
           />
         </Card>
         <Modal
-          title="修改收款状态"
+          title="编辑供货价"
           width={640}
           destroyOnClose
           confirmLoading={loading}
@@ -263,23 +269,21 @@ class RechargeRecord extends PureComponent {
           {...modalFooter}
         >
           <Form onSubmit={this.handleSubmit}>
-            <FormItem label="充值金额" {...formLayout}>
-              {(currentItem && currentItem.money.toFixed(2)) || 0.0}元
+            <FormItem label="含税成本价" {...formLayout}>
+              {(currentItem && currentItem.cprice.toFixed(2)) || 0.0}元
             </FormItem>
-            <FormItem label="充值时间" {...formLayout}>
-              {(currentItem && moment.unix(currentItem.ctime).format('YYYY-MM-DD HH:mm')) ||
-                '------'}
-            </FormItem>
-            <FormItem label="收款状态" {...formLayout}>
-              {getFieldDecorator('status', {
-                rules: [{ required: true, message: '请选择收款状态' }],
-                initialValue: (currentItem && currentItem.status),
-              })(
-                <Select placeholder="请选择">
-                  <Option value={1}>已收到转账款项</Option>
-                  <Option value={0}>未收到转账款项</Option>
-                </Select>
-              )}
+            <FormItem label="含税下游供货价" {...formLayout}>
+              {getFieldDecorator('sprice', {
+                rules: [
+                  {
+                    required: true,
+                    transform: value => +value,
+                    type: 'number',
+                    message: '请正确输入金额',
+                  },
+                ],
+                initialValue: currentItem && currentItem.sprice,
+              })(<Input placeholder="仅限输入数字" type="number" />)}
             </FormItem>
             {getFieldDecorator('id', {
               rule: [{ required: true }],
@@ -292,4 +296,4 @@ class RechargeRecord extends PureComponent {
   }
 }
 
-export default RechargeRecord;
+export default OnSaleList;

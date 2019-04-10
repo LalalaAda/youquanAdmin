@@ -215,7 +215,7 @@ class MerchantList extends PureComponent {
                 rules: [{ required: true, message: '请正确输入商户名' },{
                   validator: validatorMerchantName
                 }],
-              })(<Input placeholder="限30个中文、英文或数字" maxLength={50} />)}
+              })(<Input placeholder="限30个中文、英文或数字" maxLength={30} />)}
             </FormItem>
           </Form>
         );

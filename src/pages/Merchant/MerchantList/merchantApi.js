@@ -30,3 +30,10 @@ export async function queryRechargeRecord(params) {
     params,
   });
 }
+
+export async function updateRechargeRecord(params) {
+  return request('/api/merchant/updaterecord', {
+    method: 'POST',
+    data: params
+  });
+}
