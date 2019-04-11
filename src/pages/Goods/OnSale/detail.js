@@ -1,133 +1,26 @@
-import React, { PureComponent, Fragment } from 'react';
+import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import moment from 'moment';
-import { message, Input, Table, Card, Form, Select, Modal, Button, DatePicker } from 'antd';
+import { message, Input, Button, Card, Form, Select, Modal} from 'antd';
+import PicturesWall from '@/components/UploadImgs';
 
 import styles from './index.less';
 
 const FormItem = Form.Item;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
-
-@Form.create()
-class SearchForm extends PureComponent {
-  render() {
-    const { search, onSearch, form } = this.props;
-    const { getFieldDecorator } = form;
-    const onSubmit = e => {
-      e.preventDefault();
-      form.validateFields((err, values) => {
-        if (!err) {
-          onSearch(values);
-        }
-      });
-    };
-    return (
-      <Form onSubmit={onSubmit} className={styles.form} layout="inline">
-        <FormItem>
-          {getFieldDecorator('num', {
-            initialValue: search.num,
-          })(<Input placeholder="充值单号" />)}
-        </FormItem>
-        <FormItem label="交易类型">
-          {getFieldDecorator('type', {
-            initialValue: search.type || 0,
-          })(
-            <Select style={{ minWidth: '140px' }}>
-              <Option value={0}>全部</Option>
-              <Option value={1}>预存款充值</Option>
-              <Option value={2}>订单支出</Option>
-              <Option value={3}>订单退款</Option>
-            </Select>
-          )}
-        </FormItem>
-        <FormItem label="交易时间">
-          {getFieldDecorator('time', {
-            initialValue: search.time || undefined,
-          })(
-            <RangePicker
-              showTime={{ format: 'HH:mm' }}
-              format="YYYY-MM-DD HH:mm"
-              placeholder={['开始时间', '结束时间']}
-              label="交易时间"
-            />
-          )}
-        </FormItem>
-        <FormItem>
-          <Button type="primary" htmlType="submit" icon="search">
-            搜索
-          </Button>
-        </FormItem>
-      </Form>
-    );
-  }
-}
 
 /* eslint react/no-multi-comp:0 */
-@connect(({ rcrecord, loading }) => ({
-  rcrecord,
-  loading: loading.models.rcrecord,
+@connect(({ onsale, loading }) => ({
+  onsale,
+  loading: loading.models.onsale,
 }))
 @Form.create()
-class RechargeRecord extends PureComponent {
+class OnSaleDetail extends PureComponent {
   state = {
     modalVisible: false,
-    currentItem: undefined,
-    search: {
-      num: undefined,
-      type: 0,
-      time: undefined,
-    },
+    imgobj: undefined,
+    isEdit: false
   };
 
-  columns = [
-    {
-      title: '充值单号',
-      dataIndex: 'num',
-    },
-    {
-      title: '充值金额(元)',
-      dataIndex: 'money',
-      render: val => (val && val.toFixed(2)) || 0.00,
-    },
-    {
-      title: '收款状态',
-      dataIndex: 'status',
-      render: val => (
-        <span style={val ? { color: '#1890ff' } : { color: '#f5222d' }}>
-          {val ? '已收到转账款项' : '未收到转账款项'}
-        </span>
-      ),
-    },
-    {
-      title: '充值时间',
-      dataIndex: 'ctime',
-      // sorter: true,
-      render: val => <span>{moment.unix(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '收款时间',
-      dataIndex: 'gtime',
-      render: val => <span>{moment.unix(val).format('YYYY-MM-DD HH:mm:ss')}</span>,
-    },
-    {
-      title: '操作',
-      render: val => {
-        const updateStatusClick = () => {
-          this.showModal(val);
-        };
-
-        const urlComp = !val.status ? (
-          <span className={styles.linkbutton} onClick={updateStatusClick}>
-            修改收款状态
-          </span>
-        ) : (
-          '----------'
-        );
-        return <Fragment>{urlComp}</Fragment>;
-      },
-    },
-  ];
 
   componentDidMount() {
     const {
@@ -135,7 +28,7 @@ class RechargeRecord extends PureComponent {
       dispatch,
     } = this.props;
     dispatch({
-      type: 'rcrecord/fetchList',
+      type: 'onsale/fetchItem',
       payload: { id: params.id },
     });
   }
@@ -146,14 +39,13 @@ class RechargeRecord extends PureComponent {
     const that = this;
     form.validateFields((err, values) => {
       if (!err) {
-        const { id, status } = values;
         dispatch({
-          type: 'rcrecord/updateRechargeRecord',
-          payload: { id, status },
+          type: 'onsale/updateItem',
+          payload: { ...values },
           callback(flag) {
             if (flag) {
               message.success('更改成功');
-              that.setState({ modalVisible: false });
+              that.setState({ isEdit: false });
             } else {
               message.error('更改失败');
             }
@@ -167,129 +59,153 @@ class RechargeRecord extends PureComponent {
     const { form } = this.props;
     form.resetFields();
     this.setState({
-      modalVisible: false,
+      isEdit: false,
     });
   };
 
   showModal = item => {
     this.setState({
-      currentItem: item || {},
+      imgobj: item || {},
       modalVisible: true,
     });
   };
 
+  showEdit = () => {
+    this.setState({
+      isEdit: true
+    });
+  }
+
   render() {
-    const { rcrecord, loading, dispatch, form } = this.props;
-    const { search } = this.state;
-
-    const changePage = (page, pageSize) => {
-      const { num, type, time } = search;
-      dispatch({
-        type: 'rcrecord/fetchList',
-        payload: {
-          page,
-          pageSize,
-          num,
-          type,
-          time,
-        },
-      });
-    };
-    const changePageSize = (current, size) => {
-      const { num, type, time } = search;
-      dispatch({
-        type: 'rcrecord/fetchList',
-        payload: {
-          page: current,
-          pageSize: size,
-          num,
-          type,
-          time,
-        },
-      });
-    };
-    const paginationProps = {
-      showSizeChanger: true,
-      showQuickJumper: true,
-      pageSize: rcrecord.pageSize || 20,
-      total: rcrecord.total,
-      current: rcrecord.currentPage || 0,
-      onChange: changePage,
-      onShowSizeChange: changePageSize,
-    };
-
-    const onSearch = values => {
-      const { state } = this;
-      this.setState({
-        ...state,
-        search: { ...values },
-      });
-      const { num, type, time } = values;
-      dispatch({
-        type: 'rcrecord/fetchList',
-        payload: { num, type, time },
-      });
-    };
-
-    const { modalVisible, currentItem } = this.state;
-    const modalFooter = { okText: '确定', onOk: this.handleSubmit, onCancel: this.handleCancel };
+    const { onsale, loading, form } = this.props;
+    const { isEdit, modalVisible, imgobj } = this.state;
     const { getFieldDecorator } = form;
     const formLayout = {
       labelCol: { span: 7 },
       wrapperCol: { span: 13 },
     };
 
+    const Buttons = () => {
+      if(!isEdit){
+        return (<Button className={styles.buttonDiv} type="primary" onClick={this.showEdit}>编辑</Button>);
+      }
+      return (
+        <div className={styles.buttonDiv}>
+          <Button type="primary" style={{marginRight: '6px'}} onClick={this.handleSubmit} loading={loading}>确定</Button>
+          <Button type="" onClick={this.handleCancel}>取消</Button>
+        </div>
+      );
+    }
+
+    const {detail} = onsale;
+    const supplierText = supplier => {
+      switch(supplier){
+        case 1:
+          return '流量贝贝';
+        case 2:
+          return '拉卡拉';
+        default:
+          return '----';
+      }
+    }
+    const inputText = (key, type, errmsg) => {
+      if(isEdit){
+        return (getFieldDecorator(key, {
+          rules: [{required: true, message: errmsg || "" }],
+          initialValue: detail&&detail[key]
+        })(
+          <Input type={type} maxLength={30} />
+        ));
+      }
+      return (
+        <span>{detail&&detail[key] || "----"}</span>
+      )
+    }
+    const validatorUploadimgs = (rule, value, callback) => {
+      if(!value || value.length<=0){
+        callback(rule.message);
+        return;
+      }
+      callback();
+    }
     return (
       <div>
         <Card bordered={false}>
           <div className={styles.title}>
-            <h2>商户预存款明细</h2>
+            <h2>虚拟商品详情</h2>
+            {Buttons()}
           </div>
-          <SearchForm search={search} onSearch={onSearch} />
-          <Table
-            rowKey={item => item.id}
-            dataSource={rcrecord.list}
-            columns={this.columns}
-            loading={loading}
-            pagination={paginationProps}
-          />
-        </Card>
-        <Modal
-          title="修改收款状态"
-          width={640}
-          destroyOnClose
-          confirmLoading={loading}
-          visible={modalVisible}
-          {...modalFooter}
-        >
-          <Form onSubmit={this.handleSubmit}>
-            <FormItem label="充值金额" {...formLayout}>
-              {(currentItem && currentItem.money.toFixed(2)) || 0.0}元
+          <Form onSubmit={this.handleSubmit} {...formLayout}>
+            <FormItem label="上游供应商">
+              <span>{supplierText(detail.supplier)}</span>
             </FormItem>
-            <FormItem label="充值时间" {...formLayout}>
-              {(currentItem && moment.unix(currentItem.ctime).format('YYYY-MM-DD HH:mm')) ||
-                '------'}
+            <FormItem label="上游商品编号" {...formLayout}>
+              <span>{detail&&detail.synum || "----"}</span>
             </FormItem>
-            <FormItem label="收款状态" {...formLayout}>
-              {getFieldDecorator('status', {
-                rules: [{ required: true, message: '请选择收款状态' }],
-                initialValue: (currentItem && currentItem.status),
-              })(
-                <Select placeholder="请选择">
-                  <Option value={1}>已收到转账款项</Option>
-                  <Option value={0}>未收到转账款项</Option>
-                </Select>
-              )}
+            <FormItem label="立咕商品编号" {...formLayout}>
+              <span>{detail&&detail.lgnum || "----"}</span>
+            </FormItem>
+            <FormItem label="虚拟商品名称" {...formLayout}>
+              {inputText('name', 'text','请输入虚拟商品名')}
+            </FormItem>
+            <FormItem label="商品图片" {...formLayout}>
+              {
+                getFieldDecorator('imgurls', {
+                  rules:[{required: true, validator: validatorUploadimgs, message: '商品图片为必填项'}],
+                  initialValue: detail&&detail.imgurls || []
+                })(
+                  <PicturesWall readonly={!isEdit} />
+                )
+              }
+            </FormItem>
+            <FormItem label="卡券类型" {...formLayout}>
+              <span>{detail&&detail.type===1?'直充':'非直充' || '----'}</span>
+            </FormItem>
+            <FormItem label="含税成本价" {...formLayout}>
+              <span>{detail&&detail.cprice || 0.00}元</span>
+            </FormItem>
+            <FormItem label="下游销售库存" {...formLayout}>
+              {inputText('inventory', 'number','请输入库存数')}
+            </FormItem>
+            <FormItem label="销售状态" {...formLayout}>
+              {
+                isEdit ? (
+                  getFieldDecorator('status', {
+                    rules: [{required: true}],
+                    initialValue: detail&&detail.status
+                  })(
+                    <Select placeholder="请选择">
+                      <Option value={1}>在售</Option>
+                      <Option value={0}>停售</Option>
+                    </Select>
+                  )
+                ) : (
+                  <span>{(detail&&detail.status)?'在售':'停售'}</span>
+                )
+              }
+            </FormItem>
+            <FormItem label="商品详情" {...formLayout}>
+              {
+                <textarea readOnly style={{width:'100%', resize: 'none'}} rows="5" value="暂无详情" />
+              }
             </FormItem>
             {getFieldDecorator('id', {
               rule: [{ required: true }],
-              initialValue: currentItem && currentItem.id,
+              initialValue: detail && detail.id,
             })(<Input type="hidden" />)}
           </Form>
+        </Card>
+        <Modal
+          title={imgobj&&imgobj.alt || '未知图片'}
+          width={640}
+          destroyOnClose
+          visible={modalVisible}
+        >
+          <img src={imgobj&&imgobj.src || ''} alt={imgobj&&imgobj.alt || ''} />
         </Modal>
       </div>
     );
   }
 }
 
-export default RechargeRecord;
+export default OnSaleDetail;

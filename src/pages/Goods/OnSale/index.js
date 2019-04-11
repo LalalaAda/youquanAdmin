@@ -81,6 +81,7 @@ class OnSaleList extends PureComponent {
     {
       title: '上游供应商',
       dataIndex: 'suppiler',
+      render: val => val===1?'流量贝贝':'拉卡拉',
     },
     {
       title: '上游商品编号',

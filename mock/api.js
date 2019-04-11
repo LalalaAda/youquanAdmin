@@ -79,6 +79,12 @@ const proxy = {
   'POST /api/goods/onsale/update': (req, res) => {
     return goods.updateOnSale(req, res);
   },
+  'POST /api/uploadimg': (req, res) => {
+    res.send({
+      status: 'ok',
+      url: 'https://gw.alipayobjects.com/zos/antfincdn/XAosXuNZyF/BiazfanxmamNRoxxVxka.png'
+    })
+  }
 };
 
 export default delay(proxy, 1000);
